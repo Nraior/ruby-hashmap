@@ -1,9 +1,11 @@
 class HashMap
-  def initialize(load_factor, capacity)
+  attr_reader :buckets, :total_keys, :capacity
+
+  def initialize(load_factor = 0.75, capacity = 16)
     @load_factor = load_factor
     @capacity = capacity
     @buckets = Array.new(capacity) { [] }
-    @total_items = 0
+    @total_keys = 0
   end
 
   def get_from_bucket(index)
@@ -38,15 +40,30 @@ class HashMap
 
     if to_update.nil?
       retrieved_value.push({ key => value })
-      total_items += 1
+      @total_keys += 1
+
+      # handle_extension if needs_extension?
     else
       to_update[key] = value
     end
   end
 
   def handle_extension
-    nil unless (@capacity * @load_factor) < total_items
-    # Handle extension
+    @capacity *= 2
+    copied_entries = entries.dup
+
+    clear
+    while copied_entries.length > 0
+      entry = copied_entries.pop
+      set(entry[0], entry[1])
+    end
+
+    puts 'extend!'
+  end
+
+  def needs_extension?
+    puts "#{@capacity * @load_factor} < #{@total_keys}?"
+    (@capacity * @load_factor) < @total_keys
   end
 
   def get(key)
@@ -59,5 +76,49 @@ class HashMap
 
   def has?(key)
     !get(key).nil?
+  end
+
+  def remove(key)
+    hashed_key = hash(key)
+    found = get(key)
+    return nil unless found
+
+    bucket_index = bucket_index(hashed_key)
+
+    @buckets[bucket_index].delete(found)
+    found.values.first
+  end
+
+  def length
+    @total_keys
+  end
+
+  def clear
+    @total_keys = 0
+    @buckets = Array.new(capacity) { [] }
+  end
+
+  def keys
+    keys = []
+    @buckets.map do |bucket|
+      bucket.map do |keys_value|
+        keys.push(keys_value.keys[0])
+      end
+    end
+    keys.flatten
+  end
+
+  def values
+    values = []
+    @buckets.map do |bucket|
+      bucket.map do |keys_value|
+        values.push(keys_value.values[0])
+      end
+    end
+    values.flatten
+  end
+
+  def entries
+    keys.zip(values)
   end
 end
