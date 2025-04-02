@@ -42,7 +42,7 @@ class HashMap
       retrieved_value.push({ key => value })
       @total_keys += 1
 
-      # handle_extension if needs_extension?
+      handle_extension if needs_extension?
     else
       to_update[key] = value
     end
@@ -57,12 +57,9 @@ class HashMap
       entry = copied_entries.pop
       set(entry[0], entry[1])
     end
-
-    puts 'extend!'
   end
 
   def needs_extension?
-    puts "#{@capacity * @load_factor} < #{@total_keys}?"
     (@capacity * @load_factor) < @total_keys
   end
 
@@ -86,6 +83,7 @@ class HashMap
     bucket_index = bucket_index(hashed_key)
 
     @buckets[bucket_index].delete(found)
+    @total_keys -= 1
     found.values.first
   end
 

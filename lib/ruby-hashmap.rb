@@ -13,7 +13,6 @@ test.set('ice cream', 'white')
 test.set('jacket', 'blue')
 test.set('kite', 'pink')
 test.set('lion', 'golden')
+test.set('sparrow', 'rainbow')
 
 p test.buckets
-p test.capacity
-p test.total_keys
